@@ -3,9 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <title>My Store</title>
+    <style>
+        /* Set font and background color for the body */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        /* Style the title of the page */
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Style the search form */
+        form[action="/"] {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        input[type="text"][name="q"] {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+        }
+
+        /* Style the sorting forms */
+        form[method="GET"] {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            height: 40px;
+        }
+
+        input[type="checkbox"][name="sort"] {
+            margin-right: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        /* Style the item rating form */
+        form[method="POST"] {
+            margin-top: 30px;
+        }
+
+        li {
+            list-style-type: none;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        li input[type="radio"] {
+            margin-left: 10px;
+        }
+
+        li span {
+            margin-left: auto;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+        .check{
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>My Store</h1>
-    
+<h1>My Store</h1>
+
+<form action="/" method="GET">
+    <input type="text" name="q" placeholder="Search items by name">
+    <button type="submit">Search</button>
+</form>
+
+<!--Sorting-->
+<form method="GET" class="check">
+    <input type="checkbox" name="sort" value="price_asc"> Sort by price
+    <input type="submit" value="Filter">
+</form>
+
+<form method="GET" class="check">
+    <input type="checkbox" name="sort" value="rate_asc"> Sort by rating
+    <input type="submit" value="Filter">
+</form>
+
+<!--Setting rating for items-->
+<form method="POST">
+    <input type="hidden" name="action" value="set_rating">
+    {{range .}}
+    <li>{{.Name}} - {{.Price}}
+        <input type="radio" name="rating" value="1"> 1
+        <input type="radio" name="rating" value="2"> 2
+        <input type="radio" name="rating" value="3"> 3
+        <input type="radio" name="rating" value="4"> 4
+        <input type="radio" name="rating" value="5"> 5
+    </li>
+    {{end}}
+    <button type="submit">Set Rating</button>
+</form>
 </body>
 </html>

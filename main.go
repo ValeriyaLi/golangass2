@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"html/template"
 	"net/http"
+	"strconv"
 )
 
 func initDB() (*gorm.DB, error) {
@@ -16,8 +17,35 @@ func initDB() (*gorm.DB, error) {
 }
 
 func myStore(w http.ResponseWriter, r *http.Request) {
+	db, _ := initDB()
+	searchQuery := r.URL.Query().Get("q")
+	sortParam := r.URL.Query().Get("sort")
+
+	var items []models.Item
+	if searchQuery != "" {
+		db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", searchQuery)).Find(&items)
+	} else if sortParam == "price_asc" {
+		db.Order("price ASC").Find(&items)
+	} else if sortParam == "rate_asc" {
+		db.Order("rate ASC").Find(&items)
+	} else {
+		db.Find(&items)
+	}
+
+	if r.Method == "POST" && r.FormValue("action") == "set_rating" {
+		rating := r.FormValue("rating")
+		for i, _ := range items {
+			if rating != "" {
+				r, _ := strconv.ParseFloat(rating, 32)
+				items[i].Rate = float32(r)
+				db.Save(&items[i])
+				break
+			}
+		}
+	}
+
 	tmp, _ := template.ParseFiles("templates/index.html")
-	tmp.Execute(w, nil)
+	tmp.Execute(w, items)
 }
 
 func handleRegistration(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +59,7 @@ func handleRegistration(w http.ResponseWriter, r *http.Request) {
 		db.Create(&u)
 		db.AutoMigrate(&models.User{})
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		//http.Redirect(w, r, "/login.html", http.StatusSeeOther)
 	}
 	tmp, _ := template.ParseFiles("templates/registration.html")
 	tmp.Execute(w, nil)
